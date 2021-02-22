@@ -29,6 +29,9 @@ public:
     virtual bool startService();
     virtual bool stopService();
     virtual std::string errorString();
+    virtual void attachASRListenner(ASRListennerPtr listenner);
+    virtual void detachASRListenner(ASRListennerPtr listenner);
+    virtual void notify();
 
     void handleRecordEventChange(RECORDER_EVENT eRecorderEvent);
     void handleRecorderRecogFinish(RECORDER_EVENT eRecorderEvent,ASR_RECOG_RESULT *psAsrRecogResult);
@@ -68,10 +71,13 @@ private:
         );
 
 private:
+    std::list<ASRListennerPtr> m_listennerList;
     std::string m_error;
     AsrRecogType m_RecogType;
     AsrRecogMode m_RecogMode;
     unsigned int m_GrammarId;
+
+    std::string m_asrResult;
 };
 
 #endif // SINOVOICEASRSERVICE_H

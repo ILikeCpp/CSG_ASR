@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "SinoVoiceASRService.h"
+#include "GCSClientMgr.h"
 
 class MainWindow : public QMainWindow
 {
@@ -18,6 +19,7 @@ private:
 
 private:
     ASRServicePtr m_asrService;
+    ASRListennerPtr m_asrListennerPtr;
 };
 
 #endif // MAINWINDOW_H

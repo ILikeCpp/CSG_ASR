@@ -15,9 +15,11 @@ CONFIG += c++11
 
 INCLUDEPATH += ../include \
                ./ASRService \
-               ./Common
+               ./Common \
+               ./GCSClient
 
 SOURCES += main.cpp\
+    GCSClient/GCSClientMgr.cpp \
         MainWindow.cpp \
     ASRService/SinoVoiceASRService.cpp \
     ASRService/ASRServiceAbs.cpp \
@@ -32,7 +34,9 @@ HEADERS  += MainWindow.h \
     Common/applog.h \
     Common/common_define.h \
     Common/CommonTool.h \
-    Common/FileReader.h
+    Common/FileReader.h \
+    GCSClient/ASRListennerAbs.h \
+    GCSClient/GCSClientMgr.h
 
 msvc {
     QMAKE_CFLAGS += /utf-8

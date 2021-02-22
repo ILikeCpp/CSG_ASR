@@ -97,6 +97,25 @@ std::string SinoVoiceASRService::errorString()
     return m_error;
 }
 
+void SinoVoiceASRService::attachASRListenner(ASRListennerPtr listenner)
+{
+    m_listennerList.push_back(listenner);
+}
+
+void SinoVoiceASRService::detachASRListenner(ASRListennerPtr listenner)
+{
+    m_listennerList.remove(listenner);
+}
+
+void SinoVoiceASRService::notify()
+{
+    std::list<ASRListennerPtr>::iterator itor = m_listennerList.begin();
+    for (; itor != m_listennerList.end(); ++itor)
+    {
+        (*itor)->asrResult(m_asrResult);
+    }
+}
+
 void SinoVoiceASRService::handleRecordEventChange(RECORDER_EVENT eRecorderEvent)
 {
     if(eRecorderEvent == RECORDER_EVENT_BEGIN_RECOGNIZE)
@@ -109,7 +128,7 @@ void SinoVoiceASRService::handleRecordEventChange(RECORDER_EVENT eRecorderEvent)
     }
 
     string strMessage(g_sStatus[eRecorderEvent].pszComment);
-    qDebug() << strMessage.c_str();
+//    qDebug() << strMessage.c_str();
 }
 
 void SinoVoiceASRService::handleRecorderRecogFinish(RECORDER_EVENT eRecorderEvent, ASR_RECOG_RESULT *psAsrRecogResult)
@@ -129,6 +148,9 @@ void SinoVoiceASRService::handleRecorderRecogFinish(RECORDER_EVENT eRecorderEven
         {
             strMessage += "识别结果: ";
             strMessage += psAsrRecogResult->psResultItemList[0].pszResult;
+
+            m_asrResult = psAsrRecogResult->psResultItemList[0].pszResult;
+            this->notify();
         }
     }
     else
@@ -141,6 +163,8 @@ void SinoVoiceASRService::handleRecorderRecogFinish(RECORDER_EVENT eRecorderEven
 
 void SinoVoiceASRService::handleRecorderRecogProcess(RECORDER_EVENT eRecorderEvent, ASR_RECOG_RESULT *psAsrRecogResult)
 {
+    Q_UNUSED(eRecorderEvent)
+
     string strMessage;
     if( psAsrRecogResult->uiResultItemCount > 0 )
     {

@@ -9,15 +9,18 @@
 
 MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent),
-    m_asrService(std::make_shared<SinoVoiceASRService>())
+    m_asrService(std::make_shared<SinoVoiceASRService>()),
+    m_asrListennerPtr(std::make_shared<GCSClientMgr>())
 {
     setFixedSize(450,100);
     initTitle();
     initBtn();
+    m_asrService->attachASRListenner(m_asrListennerPtr);
 }
 
 MainWindow::~MainWindow()
 {
+    m_asrService->detachASRListenner(m_asrListennerPtr);
     m_asrService->stopService();
 }
 
