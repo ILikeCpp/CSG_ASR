@@ -1,7 +1,8 @@
 #include "GCSClientMgr.h"
 
 GCSClientMgr::GCSClientMgr():
-    m_stop(false)
+    m_stop(false),
+    m_httpPtr(std::make_shared<HttpClient>())
 {
     this->startThread();
 }
@@ -54,6 +55,7 @@ void GCSClientMgr::runThread()
 
         std::string asrResult = m_deque.front();
         m_deque.pop_front();
+        m_httpPtr->hanldeAsrResult(asrResult);
         lck.unlock();
 
         qDebug() << "线程处理 asrResult = " << asrResult.c_str();

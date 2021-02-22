@@ -6,6 +6,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <deque>
+#include "HttpClient.h"
 
 class GCSClientMgr :public ASRListennerAbs
 {
@@ -26,6 +27,7 @@ private:
     std::condition_variable m_cond;
     std::deque<std::string> m_deque;
     bool m_stop;
+    HttpClientPtr m_httpPtr;
 };
 
 #endif // GCSCLIENTMGR_H
