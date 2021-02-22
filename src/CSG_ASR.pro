@@ -29,6 +29,7 @@ HEADERS  += MainWindow.h \
     ASRService/SinoVoiceASRService.h \
     ASRService/ASRServiceAbs.h \
     Common/AccountInfo.h \
+    Common/applog.h \
     Common/common_define.h \
     Common/CommonTool.h \
     Common/FileReader.h

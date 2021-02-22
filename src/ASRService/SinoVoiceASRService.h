@@ -30,6 +30,12 @@ public:
     virtual bool stopService();
     virtual std::string errorString();
 
+    void handleRecordEventChange(RECORDER_EVENT eRecorderEvent);
+    void handleRecorderRecogFinish(RECORDER_EVENT eRecorderEvent,ASR_RECOG_RESULT *psAsrRecogResult);
+    void handleRecorderRecogProcess(RECORDER_EVENT eRecorderEvent,ASR_RECOG_RESULT *psAsrRecogResult);
+    void handleRecorderErr(RECORDER_EVENT eRecorderEvent,HCI_ERR_CODE eErrorCode);
+    void handleRecorderRecordingCallback(unsigned char * pVoiceData,unsigned int uiVoiceLen);
+
 private:
     bool CheckAndUpdataAuth();
     void GetCapkeyProperty(const string&cap_key,AsrRecogType & type,AsrRecogMode &mode);

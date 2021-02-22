@@ -97,6 +97,83 @@ std::string SinoVoiceASRService::errorString()
     return m_error;
 }
 
+void SinoVoiceASRService::handleRecordEventChange(RECORDER_EVENT eRecorderEvent)
+{
+    if(eRecorderEvent == RECORDER_EVENT_BEGIN_RECOGNIZE)
+    {
+        //do noting
+    }
+    if(eRecorderEvent == RECORDER_EVENT_END_RECORD)
+    {
+        //do noting
+    }
+
+    string strMessage(g_sStatus[eRecorderEvent].pszComment);
+    qDebug() << strMessage.c_str();
+}
+
+void SinoVoiceASRService::handleRecorderRecogFinish(RECORDER_EVENT eRecorderEvent, ASR_RECOG_RESULT *psAsrRecogResult)
+{
+    string strMessage;
+
+    if(eRecorderEvent == RECORDER_EVENT_RECOGNIZE_COMPLETE)
+    {
+        //do nothing
+    }
+
+    if( psAsrRecogResult->uiResultItemCount > 0 )
+    {
+        //得分不得低于20分，高于此得分的结果才进行打印。
+        const int minUiScore = 20;
+        if (psAsrRecogResult->psResultItemList[0].uiScore > minUiScore)
+        {
+            strMessage += "识别结果: ";
+            strMessage += psAsrRecogResult->psResultItemList[0].pszResult;
+        }
+    }
+    else
+    {
+        strMessage = "*****无识别结果*****";
+    }
+
+    qDebug() << strMessage.c_str();
+}
+
+void SinoVoiceASRService::handleRecorderRecogProcess(RECORDER_EVENT eRecorderEvent, ASR_RECOG_RESULT *psAsrRecogResult)
+{
+    string strMessage;
+    if( psAsrRecogResult->uiResultItemCount > 0 )
+    {
+        //得分不得低于20分，高于此得分的结果才进行打印。
+        const int minUiScore = 20;
+        if (psAsrRecogResult->psResultItemList[0].uiScore > minUiScore)
+        {
+            strMessage += "识别中间结果: ";
+            strMessage += psAsrRecogResult->psResultItemList[0].pszResult;
+        }
+    }
+    else
+    {
+        strMessage = "*****无识别结果*****";
+    }
+
+    qDebug() << strMessage.c_str();
+}
+
+void SinoVoiceASRService::handleRecorderErr(RECORDER_EVENT eRecorderEvent, HCI_ERR_CODE eErrorCode)
+{
+    ostringstream ostr;
+    ostr << "" << eRecorderEvent << " 系统错误码:" << eErrorCode;
+    qDebug() << ostr.str().c_str();
+}
+
+void SinoVoiceASRService::handleRecorderRecordingCallback(unsigned char *pVoiceData, unsigned int uiVoiceLen)
+{
+    Q_UNUSED(pVoiceData)
+    Q_UNUSED(uiVoiceLen)
+//    qDebug() << "uiVoiceLen = " << uiVoiceLen;
+}
+
 bool SinoVoiceASRService::CheckAndUpdataAuth()
 {
     //获取过期时间
@@ -392,12 +469,7 @@ void SinoVoiceASRService::EchoGrammarData(const string &grammarFile)
     char szData[1024] = {0};
     while( fgets( szData, 1024, fp ) != NULL )
     {
-//        unsigned char* pszGBK = NULL;
-//        HciExampleComon::UTF8ToGBK( (unsigned char*)szData, &pszGBK);
-//        grammarData += (char*)pszGBK;
-//        HciExampleComon::FreeConvertResult( pszGBK );
         grammarData += (char*)szData;
-//        grammarData += "\r\n";
     }
 
     fclose( fp );
@@ -408,18 +480,7 @@ void SinoVoiceASRService::EchoGrammarData(const string &grammarFile)
 void SinoVoiceASRService::RecordEventChange(RECORDER_EVENT eRecorderEvent, void *pUsrParam)
 {
     SinoVoiceASRService *cb = static_cast<SinoVoiceASRService*>(pUsrParam);
-
-    if(eRecorderEvent == RECORDER_EVENT_BEGIN_RECOGNIZE)
-    {
-        //do noting
-    }
-    if(eRecorderEvent == RECORDER_EVENT_END_RECORD)
-    {
-        //do noting
-    }
-
-    string strMessage(g_sStatus[eRecorderEvent].pszComment);
-    qDebug() << strMessage.c_str();
+    cb->handleRecordEventChange(eRecorderEvent);
 }
 
 void SinoVoiceASRService::RecorderRecogFinish(
@@ -427,55 +488,8 @@ void SinoVoiceASRService::RecorderRecogFinish(
                                        ASR_RECOG_RESULT *psAsrRecogResult,
                                        void *pUsrParam)
 {
-//	CString strMessage = "";
-
-//    CRecorder_ExampleDlg *dlg = (CRecorder_ExampleDlg*)pUsrParam;
-//	if(eRecorderEvent == RECORDER_EVENT_RECOGNIZE_COMPLETE)
-//	{
-//		char buff[32];
-//		clock_t endClock = clock();
-
-//		strMessage.AppendFormat( "识别时间:%d", (int)endClock - (int)dlg->m_startClock );
-
-//		dlg->PostRecorderEventAndMsg(eRecorderEvent, strMessage);
-//	}
-
-//    strMessage = "";
-//    if( psAsrRecogResult->uiResultItemCount > 0 )
-//    {
-//		//得分不得低于20分，高于此得分的结果才进行打印。
-//		const int minUiScore = 20;
-//		if (psAsrRecogResult->psResultItemList[0].uiScore > minUiScore)
-//		{
-//			unsigned char* pucUTF8 = NULL;
-//			HciExampleComon::UTF8ToGBK((unsigned char*)psAsrRecogResult->psResultItemList[0].pszResult, &pucUTF8);
-//			strMessage.AppendFormat("识别结果: %s", pucUTF8);
-
-//			//判断开始或者结束
-//			CString strStartEnd = "";
-//			CString strStart = ""; strStart.AppendFormat("开始录音");
-//			CString strEnd = ""; strEnd.AppendFormat("结束录音");
-//			strStartEnd.AppendFormat("%s", pucUTF8);
-
-//			if (0 == strStartEnd.Compare(strStart))
-//			{
-//				dlg->setRecordingFlag(TRUE);
-//			}
-//			else if (0 == strStartEnd.Compare(strEnd))
-//			{
-//				dlg->setRecordingFlag(FALSE);
-//			}
-
-//			HciExampleComon::FreeConvertResult(pucUTF8);
-//			pucUTF8 = NULL;
-//		}
-//    }
-//    else
-//    {
-//        strMessage.AppendFormat( "*****无识别结果*****" );
-//    }
-
-//	dlg->PostRecorderEventAndMsg(eRecorderEvent, strMessage);
+    SinoVoiceASRService *cb = static_cast<SinoVoiceASRService*>(pUsrParam);
+    cb->handleRecorderRecogFinish(eRecorderEvent,psAsrRecogResult);
 }
 
 void SinoVoiceASRService::RecorderRecogProcess(
@@ -483,27 +497,8 @@ void SinoVoiceASRService::RecorderRecogProcess(
                                         ASR_RECOG_RESULT *psAsrRecogResult,
                                         void *pUsrParam)
 {
-//    CRecorder_ExampleDlg *dlg = (CRecorder_ExampleDlg*)pUsrParam;
-//    CString strMessage = "";
-//    if( psAsrRecogResult->uiResultItemCount > 0 )
-//    {
-//		//得分不得低于20分，高于此得分的结果才进行打印。
-//		const int minUiScore = 20;
-//		if (psAsrRecogResult->psResultItemList[0].uiScore > minUiScore)
-//		{
-//			unsigned char* pucUTF8 = NULL;
-//			HciExampleComon::UTF8ToGBK((unsigned char*)psAsrRecogResult->psResultItemList[0].pszResult, &pucUTF8);
-//			strMessage.AppendFormat("识别中间结果: %s", pucUTF8);
-//			HciExampleComon::FreeConvertResult(pucUTF8);
-//			pucUTF8 = NULL;
-//		}
-//    }
-//    else
-//    {
-//        strMessage.AppendFormat( "*****无识别结果*****" );
-//    }
-
-//	dlg->PostRecorderEventAndMsg(eRecorderEvent, strMessage);
+    SinoVoiceASRService *cb = static_cast<SinoVoiceASRService*>(pUsrParam);
+    cb->handleRecorderRecogProcess(eRecorderEvent,psAsrRecogResult);
 }
 
 void SinoVoiceASRService::RecorderErr(
@@ -511,11 +506,8 @@ void SinoVoiceASRService::RecorderErr(
                                HCI_ERR_CODE eErrorCode,
                                void *pUsrParam)
 {
-//    CRecorder_ExampleDlg * dlg = (CRecorder_ExampleDlg*)pUsrParam;
-//    CString strMessage = "";
-//    strMessage.AppendFormat( "系统错误:%d", eErrorCode );
-
-//	dlg->PostRecorderEventAndMsg(eRecorderEvent, strMessage);
+    SinoVoiceASRService *cb = static_cast<SinoVoiceASRService*>(pUsrParam);
+    cb->handleRecorderErr(eRecorderEvent,eErrorCode);
 }
 
 void SinoVoiceASRService::RecorderRecordingCallback(
@@ -524,7 +516,7 @@ void SinoVoiceASRService::RecorderRecordingCallback(
                                      void * pUsrParam
                                      )
 {
-//	CRecorder_ExampleDlg * dlg = (CRecorder_ExampleDlg *)pUsrParam;
-//	dlg->RecorderRecording(pVoiceData, uiVoiceLen);
+    SinoVoiceASRService *cb = static_cast<SinoVoiceASRService*>(pUsrParam);
+    cb->handleRecorderRecordingCallback(pVoiceData,uiVoiceLen);
 }
 
