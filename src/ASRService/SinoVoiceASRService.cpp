@@ -158,7 +158,13 @@ void SinoVoiceASRService::handleRecorderRecogFinish(RECORDER_EVENT eRecorderEven
         strMessage = "*****无识别结果*****";
     }
 
-    qDebug() << strMessage.c_str();
+//    qDebug() << strMessage.c_str();
+
+    static int num = 0;
+    ostringstream ostr;
+    ostr << "结果:" << num++;
+    m_asrResult = ostr.str();
+    this->notify();
 }
 
 void SinoVoiceASRService::handleRecorderRecogProcess(RECORDER_EVENT eRecorderEvent, ASR_RECOG_RESULT *psAsrRecogResult)

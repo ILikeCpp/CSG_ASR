@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -20,6 +20,7 @@ INCLUDEPATH += ../include \
 
 SOURCES += main.cpp\
     GCSClient/GCSClientMgr.cpp \
+    GCSClient/HttpClient.cpp \
         MainWindow.cpp \
     ASRService/SinoVoiceASRService.cpp \
     ASRService/ASRServiceAbs.cpp \
@@ -36,7 +37,8 @@ HEADERS  += MainWindow.h \
     Common/CommonTool.h \
     Common/FileReader.h \
     GCSClient/ASRListennerAbs.h \
-    GCSClient/GCSClientMgr.h
+    GCSClient/GCSClientMgr.h \
+    GCSClient/HttpClient.h
 
 msvc {
     QMAKE_CFLAGS += /utf-8
