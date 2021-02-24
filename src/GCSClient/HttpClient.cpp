@@ -36,7 +36,8 @@ void HttpClient::hanldeAsrResult(const std::string &asrResult)
     }
 
     QJsonObject obj;
-    obj.insert(HTTP_BODY_CMD,cmd);
+    obj.insert(HTTP_BODY_CMD,1);
+    obj.insert(HTTP_BODY_ASR_CMD,cmd);
     obj.insert(HTTP_BODY_ASR, QString::fromStdString(asrResult));
     obj.insert(HTTP_BODY_ROBOT_IP,m_config.value(CONFIG_JSON_ROBOT_IP).toString());
     obj.insert(HTTP_BODY_ROBOT_PORT,m_config.value(CONFIG_JSON_ROBOT_PORT).toString().toInt());
@@ -45,29 +46,7 @@ void HttpClient::hanldeAsrResult(const std::string &asrResult)
     qDebug() << obj;
 
 //    this->syncGet(request);
-//    this->syncPost(request,doc.toJson());
-}
-
-void HttpClient::onRequestFinished(QNetworkReply *reply)
-{
-    if(nullptr == reply)
-    {
-        qDebug()<<"HttpClient::onRequestFinished reply is nullptr";
-        return;
-    }
-
-    if(reply->error() == QNetworkReply::NoError)
-    {
-        //处理接收的处理，然后post出去
-        QByteArray data = reply->readAll();
-        qDebug() << "reply===" << data;
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
-        QJsonObject resultObj = jsonDoc.object();
-        qDebug() << "resultObj===" << resultObj;
-    }
-
-    // 处理完成，删除，不能直接delete.
-    reply->deleteLater();
+    this->syncPost(request,doc.toJson());
 }
 
 QByteArray HttpClient::syncGet(QNetworkRequest request)
@@ -82,7 +61,8 @@ QByteArray HttpClient::syncGet(QNetworkRequest request)
     QByteArray replyData;
     if(reply->error() == QNetworkReply::NoError)
     {
-        qDebug() << reply->readAll();
+        QTextCodec *codec = QTextCodec::codecForName("GBK");
+        qDebug() << codec->toUnicode(reply->readAll());
     }
     else
     {
@@ -123,14 +103,16 @@ QByteArray HttpClient::syncPost(QNetworkRequest request,const QByteArray &body)
 QNetworkRequest HttpClient::getBaseRequest()
 {
     QNetworkRequest request;
-//    request.setRawHeader("Content-Type","application/x-www-form-urlencoded"/*"application/json;charset=UTF-8"*/);
-    request.setRawHeader("Accept", "application/json");
+    request.setRawHeader("Content-Type","application/json;charset=UTF-8");
+    request.setRawHeader("Accept", "application/json;charset=UTF-8");
     return request;
 }
 
 QString HttpClient::getBaseUrl()
 {
-    QString url = QString("http://%1:%2").arg("127.0.0.1").arg("8081");
+    QString url = QString("http://%1:%2").
+            arg(m_config.value(CONFIG_JSON_HTTP_SERVER_IP).toString()).
+            arg(m_config.value(CONFIG_JSON_HTTP_SERVER_PORT).toString().toInt());
     return url;
 }
 
@@ -152,7 +134,7 @@ void HttpClient::readConfig()
 
 QNetworkRequest HttpClient::getNetworkRequest()
 {
-#if 0
+#if 1
     QNetworkRequest request = getBaseRequest();
     QString baseUrl = getBaseUrl();
     QString userInput = QString("%1/scwp/gcs/asrControl").arg(baseUrl);
@@ -160,7 +142,7 @@ QNetworkRequest HttpClient::getNetworkRequest()
     request.setUrl(url);
 #endif
 
-#if 1
+#if 0
     QNetworkRequest request;
     QUrl url("https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?");
     QUrlQuery query;

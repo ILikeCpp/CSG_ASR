@@ -20,9 +20,6 @@ public:
 
     void hanldeAsrResult(const std::string &asrResult);
 
-public slots:
-    void onRequestFinished(QNetworkReply *reply);
-
 private:
     QByteArray syncGet(QNetworkRequest request);
     QByteArray syncPost(QNetworkRequest request,const QByteArray &body);
