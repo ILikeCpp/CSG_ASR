@@ -1,8 +1,7 @@
 #include "GCSClientMgr.h"
 
 GCSClientMgr::GCSClientMgr():
-    m_stop(false),
-    m_httpPtr(std::make_shared<HttpClient>())
+    m_stop(false)
 {
     this->startThread();
 }
@@ -38,26 +37,25 @@ void GCSClientMgr::stopThread()
 
 void GCSClientMgr::runThread()
 {
+    m_httpPtr = std::make_shared<HttpClient>();
+
     while (!m_stop)
     {
         std::unique_lock<std::mutex> lck(m_mtx);
         if (m_deque.empty() && !m_stop)
         {
-            qDebug() << "GCSClientMgr wait!";
+            qDebug() << "*****GCSClientMgr wait!*****";
             m_cond.wait(lck);
         }
 
         if (m_stop)
         {
-            qDebug() << "GCSClientMgr quit thread!";
+            qDebug() << "*****GCSClientMgr quit thread!*****";
             break;
         }
 
         std::string asrResult = m_deque.front();
         m_deque.pop_front();
         m_httpPtr->hanldeAsrResult(asrResult);
-        lck.unlock();
-
-        qDebug() << "线程处理 asrResult = " << asrResult.c_str();
     }
 }

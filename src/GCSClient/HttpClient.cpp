@@ -4,13 +4,19 @@
 #include <QJsonDocument>
 
 #include <QNetworkAccessManager>
-#include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QUrlQuery>
+#include <QTextCodec>
+#include <QEventLoop>
+#include <QFile>
+
+#include "common_define.h"
 
 HttpClient::HttpClient()
 {
-    m_networkMgr = new QNetworkAccessManager(this);
-    connect(m_networkMgr, SIGNAL(finished(QNetworkReply*)), this, SLOT(onRequestFinished(QNetworkReply*)));
+    //读取配置文件
+    readConfig();
 }
 
 HttpClient::~HttpClient()
@@ -20,20 +26,30 @@ HttpClient::~HttpClient()
 
 void HttpClient::hanldeAsrResult(const std::string &asrResult)
 {
-    qDebug() << "hanldeAsrResult " << asrResult.c_str();
+    QNetworkRequest request = this->getNetworkRequest();
 
-//    QNetworkRequest request = this->getNetworkRequest();
+    int cmd = convert2Cmd(asrResult);
+    if (-1 == cmd)
+    {
+        qDebug() << "convert to cmd failed!";
+        return;
+    }
 
-//    QJsonObject obj;
-//    QJsonDocument doc(obj);
+    QJsonObject obj;
+    obj.insert(HTTP_BODY_CMD,cmd);
+    obj.insert(HTTP_BODY_ASR, QString::fromStdString(asrResult));
+    obj.insert(HTTP_BODY_ROBOT_IP,m_config.value(CONFIG_JSON_ROBOT_IP).toString());
+    obj.insert(HTTP_BODY_ROBOT_PORT,m_config.value(CONFIG_JSON_ROBOT_PORT).toString().toInt());
+    QJsonDocument doc(obj);
 
-//    qDebug() << m_networkMgr->post(request,doc.toJson());
-    qDebug() << m_networkMgr->get(QNetworkRequest(QUrl("https://www.baidu.com/")));
+    qDebug() << obj;
+
+//    this->syncGet(request);
+//    this->syncPost(request,doc.toJson());
 }
 
 void HttpClient::onRequestFinished(QNetworkReply *reply)
 {
-    qDebug() << reply->readAll();
     if(nullptr == reply)
     {
         qDebug()<<"HttpClient::onRequestFinished reply is nullptr";
@@ -54,6 +70,56 @@ void HttpClient::onRequestFinished(QNetworkReply *reply)
     reply->deleteLater();
 }
 
+QByteArray HttpClient::syncGet(QNetworkRequest request)
+{
+    static QNetworkAccessManager m_networkMgr;
+    QEventLoop loop;
+
+    QNetworkReply *reply = m_networkMgr.get(request);
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec(QEventLoop::ExcludeUserInputEvents);
+
+    QByteArray replyData;
+    if(reply->error() == QNetworkReply::NoError)
+    {
+        qDebug() << reply->readAll();
+    }
+    else
+    {
+        qDebug() << "reply error = " << reply->errorString();
+    }
+
+    reply->deleteLater();
+    reply = nullptr;
+
+    return replyData;
+}
+
+QByteArray HttpClient::syncPost(QNetworkRequest request,const QByteArray &body)
+{
+    static QNetworkAccessManager m_networkMgr;
+    QEventLoop loop;
+
+    QNetworkReply *reply = m_networkMgr.post(request,body);
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec(QEventLoop::ExcludeUserInputEvents);
+
+    QByteArray replyData;
+    if(reply->error() == QNetworkReply::NoError)
+    {
+        qDebug() << reply->readAll();
+    }
+    else
+    {
+        qDebug() << "reply error = " << reply->errorString();
+    }
+
+    reply->deleteLater();
+    reply = nullptr;
+
+    return replyData;
+}
+
 QNetworkRequest HttpClient::getBaseRequest()
 {
     QNetworkRequest request;
@@ -68,12 +134,64 @@ QString HttpClient::getBaseUrl()
     return url;
 }
 
+void HttpClient::readConfig()
+{
+    QFile file("../../data/config/config.json");
+    if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
+    {
+        qDebug() << "file open failed! " << file.errorString();
+        return;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    m_config = doc.object();
+    file.close();
+
+//    qDebug() << m_config;
+}
+
 QNetworkRequest HttpClient::getNetworkRequest()
 {
+#if 0
     QNetworkRequest request = getBaseRequest();
     QString baseUrl = getBaseUrl();
-    QString userInput = QString("%1/scwp/gcs/startPatrolJob").arg(baseUrl);
+    QString userInput = QString("%1/scwp/gcs/asrControl").arg(baseUrl);
     QUrl url = QUrl::fromUserInput(userInput);
     request.setUrl(url);
+#endif
+
+#if 1
+    QNetworkRequest request;
+    QUrl url("https://tcc.taobao.com/cc/json/mobile_tel_segment.htm?");
+    QUrlQuery query;
+    query.addQueryItem("tel","15850890324");
+    url.setQuery(query);
+    request.setUrl(url);
+    //设置请求头
+    request.setHeader(QNetworkRequest::ContentTypeHeader,"application/javascript;charset=GBK");
+#endif
+
     return request;
+}
+
+int HttpClient::convert2Cmd(const std::string &asrResult)
+{
+    int cmd = -1;
+
+    QJsonArray array = m_config.value(CONFIG_JSON_ASR_CMD).toArray();
+    QJsonArray::iterator itor = array.begin();
+    int key = 1;
+
+    while (itor != array.end()) {
+        QJsonObject obj = itor->toObject();
+        if (obj.value(QString::number(key)).toString() == QString::fromStdString(asrResult))
+        {
+            cmd = key;
+            break;
+        }
+        key++;
+        itor++;
+    }
+
+    return cmd;
 }

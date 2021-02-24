@@ -24,12 +24,17 @@ public slots:
     void onRequestFinished(QNetworkReply *reply);
 
 private:
+    QByteArray syncGet(QNetworkRequest request);
+    QByteArray syncPost(QNetworkRequest request,const QByteArray &body);
     QNetworkRequest getNetworkRequest();
     QNetworkRequest getBaseRequest();
     QString getBaseUrl();
 
+    void readConfig();
+    int convert2Cmd(const std::string &asrResult);
+
 private:
-    QNetworkAccessManager *m_networkMgr;
+    QJsonObject m_config;
 };
 
 typedef std::shared_ptr<HttpClient> HttpClientPtr;

@@ -152,34 +152,11 @@ void SinoVoiceASRService::handleRecorderRecogFinish(RECORDER_EVENT eRecorderEven
             m_asrResult = psAsrRecogResult->psResultItemList[0].pszResult;
             this->notify();
         }
-    }
-    else
-    {
-        strMessage = "*****无识别结果*****";
-    }
-
-//    qDebug() << strMessage.c_str();
-
-    static int num = 0;
-    ostringstream ostr;
-    ostr << "结果:" << num++;
-    m_asrResult = ostr.str();
-    this->notify();
-}
-
-void SinoVoiceASRService::handleRecorderRecogProcess(RECORDER_EVENT eRecorderEvent, ASR_RECOG_RESULT *psAsrRecogResult)
-{
-    Q_UNUSED(eRecorderEvent)
-
-    string strMessage;
-    if( psAsrRecogResult->uiResultItemCount > 0 )
-    {
-        //得分不得低于20分，高于此得分的结果才进行打印。
-        const int minUiScore = 20;
-        if (psAsrRecogResult->psResultItemList[0].uiScore > minUiScore)
+        else
         {
-            strMessage += "识别中间结果: ";
-            strMessage += psAsrRecogResult->psResultItemList[0].pszResult;
+            ostringstream ostr;
+            ostr << "低于" << minUiScore << "分,识别结果:" << psAsrRecogResult->psResultItemList[0].pszResult;
+            strMessage = ostr.str();
         }
     }
     else
@@ -188,6 +165,18 @@ void SinoVoiceASRService::handleRecorderRecogProcess(RECORDER_EVENT eRecorderEve
     }
 
     qDebug() << strMessage.c_str();
+
+//    static int num = 0;
+//    ostringstream ostr;
+//    ostr << "结果:" << num++;
+//    m_asrResult = ostr.str();
+//    this->notify();
+}
+
+void SinoVoiceASRService::handleRecorderRecogProcess(RECORDER_EVENT eRecorderEvent, ASR_RECOG_RESULT *psAsrRecogResult)
+{
+    Q_UNUSED(eRecorderEvent)
+    Q_UNUSED(psAsrRecogResult)
 }
 
 void SinoVoiceASRService::handleRecorderErr(RECORDER_EVENT eRecorderEvent, HCI_ERR_CODE eErrorCode)
@@ -440,7 +429,7 @@ bool SinoVoiceASRService::Init()
                 m_error = ostr.str();
                 return false;
             }
-            EchoGrammarData(grammarFile);
+//            EchoGrammarData(grammarFile);
         }
         else
         {

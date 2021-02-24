@@ -146,5 +146,16 @@ inline string csg_debug_release()
 #endif
 }
 
+//HTTP 通信 包体格式
+#define HTTP_BODY_CMD "cmd"
+#define HTTP_BODY_ASR "asr"
+#define HTTP_BODY_ROBOT_IP "robot_ip"
+#define HTTP_BODY_ROBOT_PORT "robot_port"
+
+//配置文件json格式
+#define CONFIG_JSON_ASR_CMD "asrCmd"
+#define CONFIG_JSON_ROBOT_IP "robot_ip"
+#define CONFIG_JSON_ROBOT_PORT "robot_port"
+
 #endif // COMMON_DEFINE
 
