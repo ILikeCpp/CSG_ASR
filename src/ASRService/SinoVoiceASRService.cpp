@@ -41,7 +41,7 @@ SinoVoiceASRService::SinoVoiceASRService():
 {
     Init();
 
-    qDebug() << "SinoVoiceASRService currentThread:" << QThread::currentThread();
+//    qDebug() << "SinoVoiceASRService currentThread:" << QThread::currentThread();
 }
 
 SinoVoiceASRService::~SinoVoiceASRService()
@@ -145,7 +145,7 @@ void SinoVoiceASRService::handleRecordEventChange(RECORDER_EVENT eRecorderEvent)
 
 void SinoVoiceASRService::handleRecorderRecogFinish(RECORDER_EVENT eRecorderEvent, ASR_RECOG_RESULT *psAsrRecogResult)
 {
-    qDebug() << "handleRecorderRecogFinish currentThread:" << QThread::currentThread();
+//    qDebug() << "handleRecorderRecogFinish currentThread:" << QThread::currentThread();
 
     string strMessage;
 
@@ -523,7 +523,7 @@ void SinoVoiceASRService::RecorderRecogFinish(
                                        ASR_RECOG_RESULT *psAsrRecogResult,
                                        void *pUsrParam)
 {
-    qDebug() << "RecorderRecogFinish currentThread:" << QThread::currentThread();
+//    qDebug() << "RecorderRecogFinish currentThread:" << QThread::currentThread();
 
     SinoVoiceASRService *cb = static_cast<SinoVoiceASRService*>(pUsrParam);
     cb->handleRecorderRecogFinish(eRecorderEvent,psAsrRecogResult);

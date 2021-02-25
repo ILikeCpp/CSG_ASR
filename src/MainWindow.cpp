@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent):
     m_asrService(std::make_shared<SinoVoiceASRService>()),
     m_asrListennerPtr(std::make_shared<GCSClientMgr>())
 {
-    qDebug() << "MainWindow currentThread:" << QThread::currentThread();
+//    qDebug() << "MainWindow currentThread:" << QThread::currentThread();
 
     setFixedSize(450,100);
     initTitle();

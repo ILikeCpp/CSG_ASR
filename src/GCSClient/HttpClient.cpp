@@ -39,7 +39,7 @@ HttpClient::~HttpClient()
 
 void HttpClient::hanldeAsrResult(const std::string &asrResult)
 {
-    qDebug() << "hanldeAsrResult currentThread:" << QThread::currentThread();
+//    qDebug() << "hanldeAsrResult currentThread:" << QThread::currentThread();
 
     if (!isNetworkAvailable())
     {
@@ -101,7 +101,7 @@ QByteArray HttpClient::syncGet(QNetworkRequest request)
 
 QByteArray HttpClient::syncPost(QNetworkRequest request,const QByteArray &body)
 {
-    qDebug() << "syncPost currentThread:" << QThread::currentThread();
+//    qDebug() << "syncPost currentThread:" << QThread::currentThread();
 
     static QNetworkAccessManager m_networkMgr;
     QEventLoop loop;
