@@ -28,19 +28,16 @@ void HttpClient::hanldeAsrResult(const std::string &asrResult)
 {
     QNetworkRequest request = this->getNetworkRequest();
 
-    int cmd = convert2Cmd(asrResult);
-    if (-1 == cmd)
+    QString cmd = convert2Cmd(asrResult);
+    if (cmd.isEmpty())
     {
         qDebug() << "convert to cmd failed!";
         return;
     }
 
     QJsonObject obj;
-    obj.insert(HTTP_BODY_CMD,1);
-    obj.insert(HTTP_BODY_ASR_CMD,cmd);
+    obj.insert(HTTP_BODY_CMD,cmd);
     obj.insert(HTTP_BODY_ASR, QString::fromStdString(asrResult));
-    obj.insert(HTTP_BODY_ROBOT_IP,m_config.value(CONFIG_JSON_ROBOT_IP).toString());
-    obj.insert(HTTP_BODY_ROBOT_PORT,m_config.value(CONFIG_JSON_ROBOT_PORT).toString().toInt());
     QJsonDocument doc(obj);
 
     qDebug() << obj;
@@ -137,7 +134,7 @@ QNetworkRequest HttpClient::getNetworkRequest()
 #if 1
     QNetworkRequest request = getBaseRequest();
     QString baseUrl = getBaseUrl();
-    QString userInput = QString("%1/scwp/gcs/asrControl").arg(baseUrl);
+    QString userInput = QString("%1").arg(baseUrl);
     QUrl url = QUrl::fromUserInput(userInput);
     request.setUrl(url);
 #endif
@@ -156,22 +153,21 @@ QNetworkRequest HttpClient::getNetworkRequest()
     return request;
 }
 
-int HttpClient::convert2Cmd(const std::string &asrResult)
+QString HttpClient::convert2Cmd(const std::string &asrResult)
 {
-    int cmd = -1;
+    QString cmd;
 
     QJsonArray array = m_config.value(CONFIG_JSON_ASR_CMD).toArray();
     QJsonArray::iterator itor = array.begin();
-    int key = 1;
 
     while (itor != array.end()) {
         QJsonObject obj = itor->toObject();
-        if (obj.value(QString::number(key)).toString() == QString::fromStdString(asrResult))
+        QStringList keys = obj.keys();
+        if (obj.value(keys.first()).toString() == QString::fromStdString(asrResult))
         {
-            cmd = key;
+            cmd = keys.first();
             break;
         }
-        key++;
         itor++;
     }
 

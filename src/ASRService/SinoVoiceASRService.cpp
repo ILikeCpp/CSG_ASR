@@ -143,7 +143,7 @@ void SinoVoiceASRService::handleRecorderRecogFinish(RECORDER_EVENT eRecorderEven
     if( psAsrRecogResult->uiResultItemCount > 0 )
     {
         //得分不得低于20分，高于此得分的结果才进行打印。
-        const int minUiScore = 20;
+        const int minUiScore = 500;
         if (psAsrRecogResult->psResultItemList[0].uiScore > minUiScore)
         {
             strMessage += "识别结果: ";

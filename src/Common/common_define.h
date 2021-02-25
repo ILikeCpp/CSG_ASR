@@ -4,6 +4,7 @@
 #include <QString>
 #include <list>
 #include <QStringList>
+#include <QSound>
 
 using namespace std;
 
@@ -146,17 +147,17 @@ inline string csg_debug_release()
 #endif
 }
 
+inline void playAudio(const QString &file)
+{
+    QSound::play(file);
+}
+
 //HTTP 通信 包体格式
 #define HTTP_BODY_CMD "cmd"
-#define HTTP_BODY_ASR_CMD "asr_cmd"
 #define HTTP_BODY_ASR "asr"
-#define HTTP_BODY_ROBOT_IP "robot_ip"
-#define HTTP_BODY_ROBOT_PORT "robot_port"
 
 //配置文件json格式
 #define CONFIG_JSON_ASR_CMD "asrCmd"
-#define CONFIG_JSON_ROBOT_IP "robot_ip"
-#define CONFIG_JSON_ROBOT_PORT "robot_port"
 #define CONFIG_JSON_HTTP_SERVER_IP "http_server_ip"
 #define CONFIG_JSON_HTTP_SERVER_PORT "http_server_port"
 

@@ -28,7 +28,7 @@ private:
     QString getBaseUrl();
 
     void readConfig();
-    int convert2Cmd(const std::string &asrResult);
+    QString convert2Cmd(const std::string &asrResult);
 
 private:
     QJsonObject m_config;
