@@ -11,6 +11,7 @@
 #include <QEventLoop>
 #include <QFile>
 #include <QSound>
+#include <QTcpSocket>
 
 #include "common_define.h"
 
@@ -39,6 +40,13 @@ HttpClient::~HttpClient()
 void HttpClient::hanldeAsrResult(const std::string &asrResult)
 {
     qDebug() << "hanldeAsrResult currentThread:" << QThread::currentThread();
+
+    if (!isNetworkAvailable())
+    {
+        qDebug() << "isNetworkAvailable = false";
+        emit signal_playError();
+        return;
+    }
 
     QNetworkRequest request = this->getNetworkRequest();
 
@@ -218,4 +226,13 @@ void HttpClient::initPlayThread()
     m_playOkThread.start();
     m_playNoThread.start();
     m_playErrorThread.start();
+}
+
+bool HttpClient::isNetworkAvailable()
+{
+    static QTcpSocket socket;
+    socket.abort();
+    socket.connectToHost(m_config.value(CONFIG_JSON_HTTP_SERVER_IP).toString(),
+                         m_config.value(CONFIG_JSON_HTTP_SERVER_PORT).toString().toInt());
+    return socket.waitForConnected(10000);
 }

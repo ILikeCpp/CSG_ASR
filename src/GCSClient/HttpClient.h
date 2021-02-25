@@ -36,6 +36,7 @@ private:
     void readConfig();
     QString convert2Cmd(const std::string &asrResult);
     void initPlayThread();
+    bool isNetworkAvailable();
 
 private:
     QJsonObject m_config;
