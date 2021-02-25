@@ -2,5 +2,6 @@
     <qresource prefix="/audio">
         <file>audio/auido_no.wav</file>
         <file>audio/auido_ok.wav</file>
+        <file>audio/auido_error.wav</file>
     </qresource>
 </RCC>

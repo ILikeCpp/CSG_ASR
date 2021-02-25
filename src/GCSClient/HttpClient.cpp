@@ -10,6 +10,7 @@
 #include <QTextCodec>
 #include <QEventLoop>
 #include <QFile>
+#include <QSound>
 
 #include "common_define.h"
 
@@ -17,15 +18,28 @@ HttpClient::HttpClient()
 {
     //读取配置文件
     readConfig();
+
+    initPlayThread();
 }
 
 HttpClient::~HttpClient()
 {
+    m_playOkThread.quit();
+    m_playOkThread.wait();
+
+    m_playNoThread.quit();
+    m_playNoThread.wait();
+
+    m_playErrorThread.quit();
+    m_playErrorThread.wait();
+
     qDebug() << "HttpClient::~HttpClient";
 }
 
 void HttpClient::hanldeAsrResult(const std::string &asrResult)
 {
+    qDebug() << "hanldeAsrResult currentThread:" << QThread::currentThread();
+
     QNetworkRequest request = this->getNetworkRequest();
 
     QString cmd = convert2Cmd(asrResult);
@@ -44,6 +58,11 @@ void HttpClient::hanldeAsrResult(const std::string &asrResult)
 
 //    this->syncGet(request);
     this->syncPost(request,doc.toJson());
+}
+
+void HttpClient::handleAsrError()
+{
+    emit signal_playNo();
 }
 
 QByteArray HttpClient::syncGet(QNetworkRequest request)
@@ -74,6 +93,8 @@ QByteArray HttpClient::syncGet(QNetworkRequest request)
 
 QByteArray HttpClient::syncPost(QNetworkRequest request,const QByteArray &body)
 {
+    qDebug() << "syncPost currentThread:" << QThread::currentThread();
+
     static QNetworkAccessManager m_networkMgr;
     QEventLoop loop;
 
@@ -85,10 +106,12 @@ QByteArray HttpClient::syncPost(QNetworkRequest request,const QByteArray &body)
     if(reply->error() == QNetworkReply::NoError)
     {
         qDebug() << reply->readAll();
+        emit signal_playOk();
     }
     else
     {
         qDebug() << "reply error = " << reply->errorString();
+        emit signal_playError();
     }
 
     reply->deleteLater();
@@ -172,4 +195,27 @@ QString HttpClient::convert2Cmd(const std::string &asrResult)
     }
 
     return cmd;
+}
+
+void HttpClient::initPlayThread()
+{
+    QSound *okSound = new QSound(":/audio/audio/auido_ok.wav");
+    QSound *noSound = new QSound(":/audio/audio/auido_no.wav");
+    QSound *errorSound = new QSound(":/audio/audio/auido_error.wav");
+
+    okSound->moveToThread(&m_playOkThread);
+    noSound->moveToThread(&m_playNoThread);
+    errorSound->moveToThread(&m_playErrorThread);
+
+    connect((&m_playOkThread), &QThread::finished, okSound, &QSound::deleteLater);
+    connect((&m_playNoThread), &QThread::finished, noSound, &QSound::deleteLater);
+    connect((&m_playErrorThread), &QThread::finished, errorSound, &QSound::deleteLater);
+
+    connect(this, SIGNAL(signal_playOk()), okSound, SLOT(play()));
+    connect(this, SIGNAL(signal_playNo()), noSound, SLOT(play()));
+    connect(this, SIGNAL(signal_playError()), errorSound, SLOT(play()));
+
+    m_playOkThread.start();
+    m_playNoThread.start();
+    m_playErrorThread.start();
 }

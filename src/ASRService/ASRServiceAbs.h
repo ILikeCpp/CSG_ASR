@@ -17,6 +17,7 @@ public:
     virtual void attachASRListenner(ASRListennerPtr listenner) = 0;
     virtual void detachASRListenner(ASRListennerPtr listenner) = 0;
     virtual void notify() = 0;
+    virtual void error() = 0;
 };
 
 typedef std::shared_ptr<ASRServiceAbs> ASRServicePtr;

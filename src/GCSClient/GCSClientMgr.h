@@ -15,6 +15,7 @@ public:
     ~GCSClientMgr();
 
     virtual void asrResult(const std::string &result);
+    virtual void asrRrror();
 
 private:
     void startThread();

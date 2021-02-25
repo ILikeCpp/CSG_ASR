@@ -13,6 +13,7 @@ public:
     }
 
     virtual void asrResult(const std::string &result) = 0;
+    virtual void asrRrror() = 0;
 };
 
 typedef std::shared_ptr<ASRListennerAbs> ASRListennerPtr;

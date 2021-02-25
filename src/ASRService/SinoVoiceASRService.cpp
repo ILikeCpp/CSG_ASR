@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <iostream>
 #include <sstream>
+#include <QThread>
 
 using namespace std;
 
@@ -39,6 +40,8 @@ SinoVoiceASRService::SinoVoiceASRService():
     m_error(""),m_GrammarId(-1)
 {
     Init();
+
+    qDebug() << "SinoVoiceASRService currentThread:" << QThread::currentThread();
 }
 
 SinoVoiceASRService::~SinoVoiceASRService()
@@ -116,6 +119,15 @@ void SinoVoiceASRService::notify()
     }
 }
 
+void SinoVoiceASRService::error()
+{
+    std::list<ASRListennerPtr>::iterator itor = m_listennerList.begin();
+    for (; itor != m_listennerList.end(); ++itor)
+    {
+        (*itor)->asrRrror();
+    }
+}
+
 void SinoVoiceASRService::handleRecordEventChange(RECORDER_EVENT eRecorderEvent)
 {
     if(eRecorderEvent == RECORDER_EVENT_BEGIN_RECOGNIZE)
@@ -133,6 +145,8 @@ void SinoVoiceASRService::handleRecordEventChange(RECORDER_EVENT eRecorderEvent)
 
 void SinoVoiceASRService::handleRecorderRecogFinish(RECORDER_EVENT eRecorderEvent, ASR_RECOG_RESULT *psAsrRecogResult)
 {
+    qDebug() << "handleRecorderRecogFinish currentThread:" << QThread::currentThread();
+
     string strMessage;
 
     if(eRecorderEvent == RECORDER_EVENT_RECOGNIZE_COMPLETE)
@@ -157,6 +171,8 @@ void SinoVoiceASRService::handleRecorderRecogFinish(RECORDER_EVENT eRecorderEven
             ostringstream ostr;
             ostr << "低于" << minUiScore << "分,识别结果:" << psAsrRecogResult->psResultItemList[0].pszResult;
             strMessage = ostr.str();
+
+            this->error();
         }
     }
     else
@@ -507,6 +523,8 @@ void SinoVoiceASRService::RecorderRecogFinish(
                                        ASR_RECOG_RESULT *psAsrRecogResult,
                                        void *pUsrParam)
 {
+    qDebug() << "RecorderRecogFinish currentThread:" << QThread::currentThread();
+
     SinoVoiceASRService *cb = static_cast<SinoVoiceASRService*>(pUsrParam);
     cb->handleRecorderRecogFinish(eRecorderEvent,psAsrRecogResult);
 }

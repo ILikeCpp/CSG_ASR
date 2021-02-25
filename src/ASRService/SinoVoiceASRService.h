@@ -32,6 +32,7 @@ public:
     virtual void attachASRListenner(ASRListennerPtr listenner);
     virtual void detachASRListenner(ASRListennerPtr listenner);
     virtual void notify();
+    virtual void error();
 
     void handleRecordEventChange(RECORDER_EVENT eRecorderEvent);
     void handleRecorderRecogFinish(RECORDER_EVENT eRecorderEvent,ASR_RECOG_RESULT *psAsrRecogResult);

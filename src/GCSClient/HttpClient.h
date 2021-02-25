@@ -19,6 +19,12 @@ public:
     ~HttpClient();
 
     void hanldeAsrResult(const std::string &asrResult);
+    void handleAsrError();
+
+signals:
+    void signal_playOk();
+    void signal_playNo();
+    void signal_playError();
 
 private:
     QByteArray syncGet(QNetworkRequest request);
@@ -29,9 +35,13 @@ private:
 
     void readConfig();
     QString convert2Cmd(const std::string &asrResult);
+    void initPlayThread();
 
 private:
     QJsonObject m_config;
+    QThread m_playOkThread;
+    QThread m_playNoThread;
+    QThread m_playErrorThread;
 };
 
 typedef std::shared_ptr<HttpClient> HttpClientPtr;

@@ -4,7 +4,6 @@
 #include <QString>
 #include <list>
 #include <QStringList>
-#include <QSound>
 
 using namespace std;
 
@@ -145,11 +144,6 @@ inline string csg_debug_release()
 #else
     return "Release";
 #endif
-}
-
-inline void playAudio(const QString &file)
-{
-    QSound::play(file);
 }
 
 //HTTP 通信 包体格式
