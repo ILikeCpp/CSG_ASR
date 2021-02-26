@@ -2,6 +2,7 @@
 #include <QDebug>
 
 #include <QJsonDocument>
+#include <QJsonParseError>
 
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -47,6 +48,8 @@ void HttpClient::hanldeAsrResult(const std::string &asrResult)
         emit signal_playError();
         return;
     }
+
+    readConfig();
 
     QNetworkRequest request = this->getNetworkRequest();
 
@@ -153,7 +156,12 @@ void HttpClient::readConfig()
         return;
     }
 
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll(),&err);
+    if (err.error != QJsonParseError::NoError)
+    {
+        qDebug() << err.errorString();
+    }
     m_config = doc.object();
     file.close();
 

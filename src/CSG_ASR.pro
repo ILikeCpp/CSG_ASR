@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     ASRService/ASRServiceAbs.cpp \
     Common/AccountInfo.cpp \
     Common/CommonTool.cpp \
-    Common/FileReader.cpp
+    Common/FileReader.cpp \
+    SettingsDialog.cpp
 
 HEADERS  += MainWindow.h \
     ASRService/SinoVoiceASRService.h \
@@ -38,7 +39,8 @@ HEADERS  += MainWindow.h \
     Common/FileReader.h \
     GCSClient/ASRListennerAbs.h \
     GCSClient/GCSClientMgr.h \
-    GCSClient/HttpClient.h
+    GCSClient/HttpClient.h \
+    SettingsDialog.h
 
 msvc {
     QMAKE_CFLAGS += /utf-8
@@ -58,4 +60,5 @@ linux {
 DESTDIR = ../bin/win_x86
 
 RESOURCES += \
-    audio.qrc
+    audio.qrc \
+    img.qrc

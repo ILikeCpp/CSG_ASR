@@ -15,7 +15,9 @@ public:
 
 private:
     void initTitle();
+    void initMenu();
     void initBtn();
+    void initQSS();
 
 private:
     ASRServicePtr m_asrService;
