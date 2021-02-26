@@ -134,7 +134,7 @@ inline string csg_getCompileDatetime()
 // 获取软件版本号 示例 1.0
 inline string csg_getSoftwareVersion()
 {
-    return string("V1.0");
+    return string("V1.2");
 }
 
 inline string csg_debug_release()
